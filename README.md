@@ -2,7 +2,7 @@
 
   ***based on https://blog.csdn.net/qq_18454025/article/details/103443771***
 
-  ***Please check this link for supporting***
+  ***v1.2.0***
 
 # details
 
