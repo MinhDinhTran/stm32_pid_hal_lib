@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="selection" value="GetModul"/>
+		<item key="casesensitive" value="false"/>
+		<item key="wholeword" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<list key="findhistory">
+			<item value="PID_fabs"/>
+			<item value="fabs"/>
+			<item value="0.0005"/>
+			<item value="integral"/>
+			<item value="Output"/>
+			<item value="State"/>
+		</list>
+		<list key="replacehistory">
+			<item value="GetModul"/>
+			<item value="PID_fabs"/>
+			<item value="PID_ACCURACY"/>
+			<item value="Integral"/>
+			<item value="Uk"/>
+			<item value="Status"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="729"/>
+		<item key="DIALOG_Y_ORIGIN" value="390"/>
+	</section>
+</section>
