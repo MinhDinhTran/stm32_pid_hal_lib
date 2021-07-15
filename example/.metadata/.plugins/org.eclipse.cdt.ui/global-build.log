@@ -1,5 +1,6 @@
-18:15:33 **** Incremental Build of configuration Debug for project PID ****
+22:25:38 **** Incremental Build of configuration Debug for project PID ****
 make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
 arm-none-eabi-gcc "../Core/Src/pid.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/pid.d" -MT"Core/Src/pid.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/pid.o"
 arm-none-eabi-gcc -o "PID.elf" @"objects.list"   -mcpu=cortex-m3 -T"H:\Embedded\ST\PID\PID\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="PID.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: PID.elf
@@ -8,7 +9,39 @@ arm-none-eabi-objdump -h -S  PID.elf  > "PID.list"
 arm-none-eabi-objcopy  -O binary  PID.elf  "PID.bin"
 arm-none-eabi-size   PID.elf 
    text	   data	    bss	    dec	    hex	filename
-  32300	    492	   1884	  34676	   8774	PID.elf
+  31052	    488	   1880	  33420	   828c	PID.elf
+Finished building: default.size.stdout
+ 
+Finished building: PID.bin
+ 
+Finished building: PID.list
+ 
+22:37:23 **** Incremental Build of configuration Debug for project PID ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/pid.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/pid.d" -MT"Core/Src/pid.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/pid.o"
+../Core/Src/pid.c: In function 'PID_Model_IntegralSeparation':
+../Core/Src/pid.c:216:15: warning: implicit declaration of function 'GetModul' [-Wimplicit-function-declaration]
+  216 |   if ((float) GetModul(pid->Offset) > moffset) {
+      |               ^~~~~~~~
+../Core/Src/main.c: In function 'HAL_UART_RxCpltCallback':
+../Core/Src/main.c:168:12: error: invalid type argument of '->' (have 'PID_HandleTypeDef' {aka 'struct __PID_HandleTypeDef'})
+  168 |    if (pid1->Accuracy > PID_GetOffsetModul(PID_Target - output))
+      |            ^~
+make: *** [Core/Src/subdir.mk:45: Core/Src/main.o] Error 1
+make: *** Waiting for unfinished jobs....
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+22:38:07 **** Incremental Build of configuration Debug for project PID ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "PID.elf" @"objects.list"   -mcpu=cortex-m3 -T"H:\Embedded\ST\PID\PID\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="PID.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: PID.elf
+ 
+arm-none-eabi-objdump -h -S  PID.elf  > "PID.list"
+arm-none-eabi-objcopy  -O binary  PID.elf  "PID.bin"
+arm-none-eabi-size   PID.elf 
+   text	   data	    bss	    dec	    hex	filename
+  31140	    488	   1880	  33508	   82e4	PID.elf
 Finished building: default.size.stdout
  
 Finished building: PID.bin

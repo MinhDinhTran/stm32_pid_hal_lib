@@ -42,7 +42,7 @@ typedef enum __PID_StatusDef {
 typedef struct __PID_HandleTypeDef {
 
 	PID_StatusDef Status;
-	PID_StatusDef UkStatus;
+	float Accuracy;
 	float SetValue;
 	float ActualValue;
 	float Offset;       //Offset: SetValue - ActualValue
@@ -53,26 +53,22 @@ typedef struct __PID_HandleTypeDef {
 	float Kd;           //Differential coefficient
 	float Integral;
 	float Uk;           //Output
-	uint32_t Round;
-	uint32_t MaxRound;
 
 } PID_HandleTypeDef;
 
 /**
  * PID Configuration
- * Modify following functions if needed
  * */
 void PID_Init(PID_HandleTypeDef *pid, float kp, float ki, float kd);
 void PID_DeInit(PID_HandleTypeDef *pid);
-void PID_Config(PID_HandleTypeDef *pid, PID_StatusDef ukstatus, uint32_t mround);
-void PID_ResetRound(PID_HandleTypeDef *pid, uint32_t mround);
-void PID_OutputHandler(PID_HandleTypeDef *pid);
+void PID_SetParam(PID_HandleTypeDef *pid, float kp, float ki, float kd);
 void PID_ResetParam(PID_HandleTypeDef *pid, float kp, float ki, float kd);
-void PID_SetAccuracy(float accuracy);
+void PID_SetAccuracy(PID_HandleTypeDef *pid, float accuracy);
 
 /**
  * PID Algorithms
  * */
+float PID_GetOffsetModul(float num);
 float PID_Model_Positional(PID_HandleTypeDef *pid, float target);
 float PID_Model_Incremental(PID_HandleTypeDef *pid, float target);
 float PID_Model_IntegralSeparation(PID_HandleTypeDef *pid, float target,

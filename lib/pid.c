@@ -3,29 +3,35 @@
  * @file    pid.c
  * @brief   This file provides code for the configuration
  *          of the PID instances.
+ * @version v2.0.0 beta
  ******************************************************************************
  * @help    When use PID, the following process should be abided
  *          PID_Model_Positional() for example:
  *
  *          0. Declare a PID_HandleTypeDef: pidx
- * 			1. PID_Init()
- * 			   1.1 set accuracy
- * 			       also can set by user though call PID_SetAccuracy()
- * 			   1.2 config some params to default value
- * 			       also can set those params by user though call PID_Config()
- * 			(2. PID_Config() if it is needed)
- * 			3. Get PID taeget value: tar
- * 			4. PID_Model_Positional(&pidx,tar)
- * 			   4.1 run pid process
- * 			   4.2 PID_ResetRound()
- * 			5. PID_OutputHandle(&pidx)
- * 			(6. PID_DeInit() if it is needed)
  *
- * 			Call other functions if needed
+ * 			1. PID_Init()
+ * 			   1.1 set accuracy(auto)
+ * 			       also can set by user though call PID_SetAccuracy()
+ *
+ * 			2. Get PID taeget value: tar
+ *
+ * 			3. while(condition) {
+ *
+ * 			       // do something
+ * 			       ......
+ * 			       PID_Model_Positional(&pidx,tar);
+ * 			       ......
+ * 			       //do something
+ *
+ * 			   }
+ *
+ * 			(4. PID_DeInit() if it is needed)
+ *
+ * 			Call other functions if it is needed
  ******************************************************************************
  * */
 #include "pid.h"
-
 float pid_accuracy = PID_DEFAULT_ACCURACY;
 
 /**
@@ -34,7 +40,7 @@ float pid_accuracy = PID_DEFAULT_ACCURACY;
  *          but I don't need all functions in it
  * @return: modulus of the param
  * */
-static double GetModul(double num) {
+float PID_GetOffsetModul(float num) {
 
 #ifndef _MATH_H_
 	if (num >= 0.0)
@@ -57,7 +63,7 @@ static double GetModul(double num) {
 void PID_Init(PID_HandleTypeDef *pid, float kp, float ki, float kd) {
 
 	pid->Status = pid_enable;
-	pid->UkStatus = pid_reset_output;
+	pid->Accuracy = PID_DEFAULT_ACCURACY;
 	pid->SetValue = 0.0;
 	pid->ActualValue = 0.0;
 	pid->Offset = 0.0;
@@ -68,10 +74,6 @@ void PID_Init(PID_HandleTypeDef *pid, float kp, float ki, float kd) {
 	pid->Ki = ki;
 	pid->Kd = kd;
 	pid->Uk = 0.0;
-	pid->Round = 0;
-	pid->MaxRound = PID_MAX_ROUND;
-
-	PID_SetAccuracy(PID_DEFAULT_ACCURACY);
 
 }
 /**
@@ -82,7 +84,6 @@ void PID_Init(PID_HandleTypeDef *pid, float kp, float ki, float kd) {
 void PID_DeInit(PID_HandleTypeDef *pid) {
 
 	pid->Status = pid_uninit;
-	pid->UkStatus = pid_reset_output;
 	pid->SetValue = 0.0;
 	pid->ActualValue = 0.0;
 	pid->Offset = 0.0;
@@ -93,75 +94,35 @@ void PID_DeInit(PID_HandleTypeDef *pid) {
 	pid->Kd = 0.0;
 	pid->Integral = 0.0;
 	pid->Uk = 0.0;
-	pid->Round = 0;
-	pid->MaxRound = 0.0;
 
 }
 
 /**
- * @brief: Config PID
- *         Call this function if it is needed to set UkStatus & mround
- *         It will set UkStatus to ukstatus(default: pid_reset_output)
- *         It will set MaxRound to mround(default: PID_MAX_ROUND)
- *         All PID processes will run no more than MaxRound times
- * @call:  After PID_Init() if this function is needed
+ * @brief: Set pid related params
+ *         Set Kp to kp
+ *         Set Ki to ki
+ *         Set Kd to kd
+ * @call:  If it is needed to set params
  * */
-void PID_Config(PID_HandleTypeDef *pid, PID_StatusDef ukstatus, uint32_t mround) {
-
-	pid->UkStatus = ukstatus;
-	pid->MaxRound = mround;
-}
-
-/**
- * @brief:  Reset PID　round to 0
- *          If pid is enable, set MaxRound to mround
- *          If pid is not enable, set MaxRound to 0
- * @call:   After PID process is over
- * @called: In every PID process
- * */
-void PID_ResetRound(PID_HandleTypeDef *pid, uint32_t mround) {
-
+void PID_SetParam(PID_HandleTypeDef *pid, float kp, float ki, float kd) {
 	if (pid->Status == pid_enable) {
-		pid->Round = 0;
-		pid->MaxRound = mround;
-	} else {
-		pid->Round = 0;
-		pid->MaxRound = 0;
-	}
+			pid->Kp = kp;
+			pid->Ki = ki;
+			pid->Kd = kd;
+		} else if (pid->Status == pid_disable) {
+			PID_Init(pid, kp, ki, kd);
+			/* CODE TO SHOW MSG ABOUT PID IS DISABLE */
 
-}
+		} else if (pid->Status == pid_uninit) {
+			PID_Init(pid, kp, ki, kd);
+			/* CODE TO SHOW MSG ABOUT PID IS UNINIT */
 
-/**
- * @brief: Handle PID output
- *         If UkStatus is pid_reset_output, reset all params related to Uk
- *         If UkStatus is pid_hold_output, hold last status
- * @call: After getting PID result
- * */
-void PID_OutputHandler(PID_HandleTypeDef *pid) {
-
-	if (pid->UkStatus == pid_reset_output) {
-
-		// Reset output related params
-		pid->SetValue = 0.0;
-		pid->ActualValue = 0.0;
-		pid->Offset = 0.0;
-		pid->OffsetNext = 0.0;
-		pid->OffsetLast = 0.0;
-		pid->Integral = 0.0;
-		pid->Uk = 0.0;
-
-	} else if (pid->UkStatus == pid_hold_output) {
-
-		// Hold last status
-		pid->SetValue = pid->SetValue;
-		pid->ActualValue = pid->ActualValue;
-		pid->Offset = pid->Offset;
-		pid->OffsetNext = pid->OffsetNext;
-		pid->OffsetLast = pid->OffsetLast;
-		pid->Integral = pid->Integral;
-		pid->Uk = pid->Uk;
-	}
-
+		} else {
+			/* SET PARAMS WITH OUT OTHER OPERATION */
+			pid->Kp = kp;
+			pid->Ki = ki;
+			pid->Kd = kd;
+		}
 }
 
 /**
@@ -173,32 +134,16 @@ void PID_OutputHandler(PID_HandleTypeDef *pid) {
  * */
 void PID_ResetParam(PID_HandleTypeDef *pid, float kp, float ki, float kd) {
 
-	if (pid->Status == pid_enable) {
-		pid->Kp = kp;
-		pid->Ki = ki;
-		pid->Kd = kd;
-	} else if (pid->Status == pid_disable) {
-		PID_Init(pid, kp, ki, kd);
-		/* CODE TO SHOW MSG ABOUT PID IS DISABLE */
+	PID_SetParam(pid, kp, ki, kd);
 
-	} else if (pid->Status == pid_uninit) {
-		PID_Init(pid, kp, ki, kd);
-		/* CODE TO SHOW MSG ABOUT PID IS UNINIT */
-
-	} else {
-		/* SET PARAMS WITH OUT OTHER OPERATION */
-		pid->Kp = kp;
-		pid->Ki = ki;
-		pid->Kd = kd;
-	}
 }
 
 /**
  * @brief: set PID accuracy
- * @param accuracy:   desired accuracy
+ * @param accuracy: desired accuracy
  * */
-void PID_SetAccuracy(float accuracy) {
-	pid_accuracy = accuracy;
+void PID_SetAccuracy(PID_HandleTypeDef *pid, float accuracy) {
+	pid->Accuracy = accuracy;
 }
 
 /**
@@ -210,29 +155,19 @@ float PID_Model_Positional(PID_HandleTypeDef *pid, float target) {
 
 	if (pid->Status == pid_enable) {
 
-		while (pid->Round <= pid->MaxRound) {
+		pid->SetValue = target;
+		pid->Offset = (pid->SetValue) - (pid->ActualValue);
+		pid->Integral += pid->Offset;
+		pid->Uk = (pid->Kp * pid->Offset) + (pid->Ki * pid->Integral)
+				+ pid->Kd * (pid->Offset - pid->OffsetLast);
+		pid->OffsetLast = pid->Offset;
+		pid->ActualValue = pid->Uk * 1.0;
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
-
-			pid->SetValue = target;
-			pid->Offset = (pid->SetValue) - (pid->ActualValue);
-			pid->Integral += pid->Offset;
-			pid->Uk = (pid->Kp * pid->Offset) + (pid->Ki * pid->Integral)
-					+ pid->Kd * (pid->Offset - pid->OffsetLast);
-			pid->OffsetLast = pid->Offset;
-			pid->ActualValue = pid->Uk * 1.0;
-
-			++pid->Round;
-		}
-
-		PID_ResetRound(pid, pid->MaxRound);
 		return pid->ActualValue;
+	}
 
-	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+	else {
+		return (float) pid->Status;
 	}
 }
 
@@ -244,34 +179,22 @@ float PID_Model_Positional(PID_HandleTypeDef *pid, float target) {
 float PID_Model_Incremental(PID_HandleTypeDef *pid, float target) {
 	if (pid->Status == pid_enable) {
 
-		while (pid->Round <= pid->MaxRound) {
+		float increment = 0.0;
+		pid->SetValue = target;
+		pid->Offset = (pid->SetValue) - (pid->ActualValue);
+		increment = pid->Kp * (pid->Offset - pid->OffsetNext)
+				+ pid->Ki * pid->Offset
+				+ pid->Kd
+						* (pid->Offset - 2 * pid->OffsetNext + pid->OffsetLast);
+		pid->Uk += increment;
+		pid->ActualValue = pid->Uk * 1.0;
+		pid->OffsetLast = pid->OffsetNext;
+		pid->OffsetNext = pid->Offset;
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
-
-			float increment = 0.0;
-			pid->SetValue = target;
-			pid->Offset = (pid->SetValue) - (pid->ActualValue);
-			increment = pid->Kp * (pid->Offset - pid->OffsetNext)
-					+ pid->Ki * pid->Offset
-					+ pid->Kd
-							* (pid->Offset - 2 * pid->OffsetNext
-									+ pid->OffsetLast);
-			pid->Uk += increment;
-			pid->ActualValue = pid->Uk * 1.0;
-			pid->OffsetLast = pid->OffsetNext;
-			pid->OffsetNext = pid->Offset;
-
-			++pid->Round;
-		}
-
-		PID_ResetRound(pid, pid->MaxRound);
 		return pid->ActualValue;
 
 	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+		return (float) pid->Status;
 	}
 }
 
@@ -285,38 +208,27 @@ float PID_Model_IntegralSeparation(PID_HandleTypeDef *pid, float target,
 		float moffset) {
 	if (pid->Status == pid_enable) {
 
-		while (pid->Round <= pid->MaxRound) {
+		uint8_t flag = 1;
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
+		pid->SetValue = target;
+		pid->Offset = (pid->SetValue) - (pid->ActualValue);
 
-			uint8_t flag = 1;
-
-			pid->SetValue = target;
-			pid->Offset = (pid->SetValue) - (pid->ActualValue);
-
-			if ((float) GetModul(pid->Offset) > moffset) {
-				flag = 0;
-			} else {
-				flag = 1;
-				pid->Integral += pid->Offset;
-			}
-			pid->Uk = (pid->Kp * pid->Offset) + (flag * pid->Ki * pid->Integral)
-					+ pid->Kd * (pid->Offset - pid->OffsetLast);
-
-			pid->OffsetLast = pid->Offset;
-			pid->ActualValue = pid->Uk * 1.0;
-
-			++pid->Round;
+		if ((float) GetModul(pid->Offset) > moffset) {
+			flag = 0;
+		} else {
+			flag = 1;
+			pid->Integral += pid->Offset;
 		}
+		pid->Uk = (pid->Kp * pid->Offset) + (flag * pid->Ki * pid->Integral)
+				+ pid->Kd * (pid->Offset - pid->OffsetLast);
 
-		PID_ResetRound(pid, pid->MaxRound);
+		pid->OffsetLast = pid->Offset;
+		pid->ActualValue = pid->Uk * 1.0;
+
 		return pid->ActualValue;
 
 	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+		return (float) pid->Status;
 	}
 }
 
@@ -331,58 +243,47 @@ float PID_Model_IntegralSeparation(PID_HandleTypeDef *pid, float target,
 float PID_Model_Anti_Windup(PID_HandleTypeDef *pid, float target, float umax,
 		float umin, float sepedge) {
 	if (pid->Status == pid_enable) {
-		while (pid->Round <= pid->MaxRound) {
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
+		uint8_t flag = 0;
+		pid->SetValue = target;
+		pid->Offset = pid->SetValue - pid->ActualValue;
 
-			uint8_t flag = 0;
-			pid->SetValue = target;
-			pid->Offset = pid->SetValue - pid->ActualValue;
-
-			if (pid->ActualValue > umax) {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
-					if (pid->Offset < 0) {
-						pid->Integral += pid->Offset;
-					}
-				}
-			} else if (pid->ActualValue < umin) {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
-					if (pid->Offset > 0) {
-						pid->Integral += pid->Offset;
-					}
-				}
+		if (pid->ActualValue > umax) {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
 			} else {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
+				flag = 1;
+				if (pid->Offset < 0) {
 					pid->Integral += pid->Offset;
 				}
 			}
-
-			pid->Uk = (pid->Kp * pid->Offset) + (flag * pid->Ki * pid->Integral)
-					+ pid->Kd * (pid->Offset - pid->OffsetLast);
-			pid->OffsetLast = pid->Offset;
-			pid->ActualValue = pid->Uk * 1.0;
-
-			++pid->Round;
-
+		} else if (pid->ActualValue < umin) {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
+			} else {
+				flag = 1;
+				if (pid->Offset > 0) {
+					pid->Integral += pid->Offset;
+				}
+			}
+		} else {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
+			} else {
+				flag = 1;
+				pid->Integral += pid->Offset;
+			}
 		}
 
-		PID_ResetRound(pid, pid->MaxRound);
+		pid->Uk = (pid->Kp * pid->Offset) + (flag * pid->Ki * pid->Integral)
+				+ pid->Kd * (pid->Offset - pid->OffsetLast);
+		pid->OffsetLast = pid->Offset;
+		pid->ActualValue = pid->Uk * 1.0;
+
 		return pid->ActualValue;
 
 	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+		return (float) pid->Status;
 	}
 }
 
@@ -397,59 +298,47 @@ float PID_Model_Anti_Windup(PID_HandleTypeDef *pid, float target, float umax,
 float PID_Model_TrapezoidalIntegral(PID_HandleTypeDef *pid, float target,
 		float umax, float umin, float sepedge) {
 	if (pid->Status == pid_enable) {
-		while (pid->Round <= pid->MaxRound) {
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
+		uint8_t flag = 0;
+		pid->SetValue = target;
+		pid->Offset = pid->SetValue - pid->ActualValue;
 
-			uint8_t flag = 0;
-			pid->SetValue = target;
-			pid->Offset = pid->SetValue - pid->ActualValue;
-
-			if (pid->ActualValue > umax) {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
-					if (pid->Offset < 0) {
-						pid->Integral += pid->Offset;
-					}
-				}
-			} else if (pid->ActualValue < umin) {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
-					if (pid->Offset > 0) {
-						pid->Integral += pid->Offset;
-					}
-				}
+		if (pid->ActualValue > umax) {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
 			} else {
-				if (GetModul(pid->Offset) > sepedge) {
-					flag = 0;
-				} else {
-					flag = 1;
+				flag = 1;
+				if (pid->Offset < 0) {
 					pid->Integral += pid->Offset;
 				}
 			}
-
-			pid->Uk = (pid->Kp * pid->Offset)
-					+ (flag * pid->Ki * pid->Integral / 2)
-					+ pid->Kd * (pid->Offset - pid->OffsetLast);
-			pid->OffsetLast = pid->Offset;
-			pid->ActualValue = pid->Uk * 1.0;
-
-			++pid->Round;
-
+		} else if (pid->ActualValue < umin) {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
+			} else {
+				flag = 1;
+				if (pid->Offset > 0) {
+					pid->Integral += pid->Offset;
+				}
+			}
+		} else {
+			if (GetModul(pid->Offset) > sepedge) {
+				flag = 0;
+			} else {
+				flag = 1;
+				pid->Integral += pid->Offset;
+			}
 		}
 
-		PID_ResetRound(pid, pid->MaxRound);
+		pid->Uk = (pid->Kp * pid->Offset) + (flag * pid->Ki * pid->Integral / 2)
+				+ pid->Kd * (pid->Offset - pid->OffsetLast);
+		pid->OffsetLast = pid->Offset;
+		pid->ActualValue = pid->Uk * 1.0;
+
 		return pid->ActualValue;
 
 	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+		return (float) pid->Status;
 	}
 }
 
@@ -463,41 +352,30 @@ float PID_Model_TrapezoidalIntegral(PID_HandleTypeDef *pid, float target,
 float PID_Model_VariableIntegral(PID_HandleTypeDef *pid, float target,
 		float lowedge, float highedge) {
 	if (pid->Status == pid_enable) {
-		while (pid->Round <= pid->MaxRound) {
 
-			if ((((float) GetModul(pid->ActualValue - target)) <= pid_accuracy)
-					&& (pid->Round >= pid->MaxRound / 100))
-				break;
+		float Ki2;
+		pid->SetValue = target;
+		pid->Offset = pid->SetValue - pid->ActualValue;
 
-			float Ki2;
-			pid->SetValue = target;
-			pid->Offset = pid->SetValue - pid->ActualValue;
-
-			if ((float) GetModul(pid->Offset) > highedge) {
-				Ki2 = 0.0;
-			} else if ((float) GetModul(pid->Offset) < lowedge) {
-				Ki2 = 1.0;
-				pid->Integral += pid->Offset;
-			} else {
-				Ki2 = (highedge - (float) GetModul(pid->Offset))
-						/ (highedge - lowedge);
-				pid->Integral += pid->Offset;
-			}
-			pid->Uk = pid->Kp * pid->Offset + Ki2 * pid->Ki * pid->Integral
-					+ pid->Kd * (pid->Offset - pid->OffsetLast);
-
-			pid->OffsetLast = pid->Offset;
-			pid->ActualValue = pid->Uk * 1.0;
-
-			++pid->Round;
-
+		if ((float) GetModul(pid->Offset) > highedge) {
+			Ki2 = 0.0;
+		} else if ((float) GetModul(pid->Offset) < lowedge) {
+			Ki2 = 1.0;
+			pid->Integral += pid->Offset;
+		} else {
+			Ki2 = (highedge - (float) GetModul(pid->Offset))
+					/ (highedge - lowedge);
+			pid->Integral += pid->Offset;
 		}
+		pid->Uk = pid->Kp * pid->Offset + Ki2 * pid->Ki * pid->Integral
+				+ pid->Kd * (pid->Offset - pid->OffsetLast);
 
-		PID_ResetRound(pid, pid->MaxRound);
+		pid->OffsetLast = pid->Offset;
+		pid->ActualValue = pid->Uk * 1.0;
+
 		return pid->ActualValue;
 
 	} else {
-		pid->Round = pid->MaxRound + 1;
-		return (float) PID_FAILED;
+		return (float) pid->Status;
 	}
 }

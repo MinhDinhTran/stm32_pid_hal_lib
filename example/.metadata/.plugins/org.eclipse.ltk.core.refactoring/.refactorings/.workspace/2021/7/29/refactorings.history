@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;PID&apos; to &apos;stm32_pid_hal&apos;" description="Rename resource &apos;PID&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/PID" name="stm32_pid_hal" stamp="1626355640803" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;stm32_pid_hal&apos; to &apos;PID&apos;" description="Rename resource &apos;stm32_pid_hal&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/stm32_pid_hal" name="PID" stamp="1626355654401" updateReferences="true"/>
+</session>

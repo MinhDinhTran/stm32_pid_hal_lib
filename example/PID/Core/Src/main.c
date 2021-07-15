@@ -92,10 +92,8 @@ int main(void) {
 
 	/* USER CODE BEGIN SysInit */
 
-	PID_Init(&pid1, 0.2, 0.015, 0.2);
+	PID_Init(&pid1, 0.736, 0.135, 0.064);
 	PID_Init(&pid2, 0.4, 0.2, 0.2);
-	PID_Config(&pid1, pid_hold_output, PID_MAX_ROUND);
-	PID_Config(&pid2, pid_reset_output, PID_MAX_ROUND);
 	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
@@ -103,6 +101,8 @@ int main(void) {
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
 	HAL_UART_Receive_IT(&huart1, RecvBuff, sizeof(RecvBuff));
+
+	printf("System start up!\n");
 
 	/* USER CODE END 2 */
 
@@ -158,18 +158,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 		PID_Target = (float) atoff((const char*) RecvBuff);
 
-		printf("Beginning value: %f\n",pid1.ActualValue);
-		printf("%f\n", PID_Model_Positional(&pid1, PID_Target));
-		PID_OutputHandler(&pid1);
-		printf("PID Finished!\n");
+		printf("Beginning value: %f\n", pid1.ActualValue);
+		int i = 0;
+		float output = 0.0;
+		while (i < 200) {
+			i++;
+			output = PID_Model_Positional(&pid1, PID_Target);
+			printf("%f\n", output);
+			if (pid1.Accuracy > PID_GetOffsetModul(PID_Target - output))
+				break;
 
-		printf("Beginning value: %f\n",pid2.ActualValue);
-		printf("%f\n",PID_Model_TrapezoidalIntegral(&pid2, PID_Target, 400, -200, 200));
-		PID_OutputHandler(&pid2);
+		}
 		printf("PID Finished!\n");
 
 		//printf("%f\n",PID_Model_Incremental(&pid1, PID_Target));
-		//PID_OutputHandle(&pid1);
 		//printf("PID Finished!\n");
 
 		HAL_UART_Receive_IT(&huart1, RecvBuff, sizeof(RecvBuff));
