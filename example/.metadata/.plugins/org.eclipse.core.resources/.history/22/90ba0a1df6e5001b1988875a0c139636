@@ -33,6 +33,9 @@
  * */
 #include "pid.h"
 
+
+float pid_accuracy = PID_DEFAULT_ACCURACY;
+
 /**
  * @brief:  get modulus of a double
  *          the same function as fabs() in "math.h"

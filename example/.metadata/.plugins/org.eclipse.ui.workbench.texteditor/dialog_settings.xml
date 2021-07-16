@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="GetModul"/>
+		<item key="selection" value="pid-&gt;Accuracy"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="pid-&gt;CtrlVar-&gt;accuracy"/>
+			<item value="pid-&gt;Status"/>
 			<item value="PID_fabs"/>
 			<item value="fabs"/>
 			<item value="0.0005"/>
@@ -14,6 +16,8 @@
 			<item value="State"/>
 		</list>
 		<list key="replacehistory">
+			<item value="pid-&gt;Accuracy"/>
+			<item value="pid-&gt;CtrlVar-&gt;status"/>
 			<item value="GetModul"/>
 			<item value="PID_fabs"/>
 			<item value="PID_ACCURACY"/>

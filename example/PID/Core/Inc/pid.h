@@ -1,10 +1,11 @@
 /**
  ******************************************************************************
- * @file    pid.h
- * @brief   This file contains all the function prototypes for
- *          the pid.c file
- * @author  sin1111yi
- * @other   All algorithms reference -- https://blog.csdn.net/qq_18454025/article/details/103443771 --
+ * @file     : pid.h
+ * @brief    : This file contains all the function prototypes for
+ *             the pid.c file
+ * @version  : v2.0.0 Beta
+ * @author   : sin1111yi
+ * @other    : All algorithms reference -- https://blog.csdn.net/qq_18454025/article/details/103443771 --
  ******************************************************************************
  */
 #ifndef __PID_H
@@ -14,9 +15,6 @@
 extern "C" {
 #endif
 
-#include "stm32f1xx_hal.h"
-
-#define PID_MAX_ROUND           HAL_RCC_GetSysClockFreq()/50000
 #define PID_DEFAULT_ACCURACY    0.0005
 
 #define PID_DISABLE             0x00

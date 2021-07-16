@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    : pid.c
- * @brief   : This file provides code for the configuration
- *            of the PID instances.
- * @version : v2.0.0 beta
+ * @file    pid.c
+ * @brief   This file provides code for the configuration
+ *          of the PID instances.
+ * @version v2.0.0 beta
  ******************************************************************************
  * @help    When use PID, the following process should be abided
  *          PID_Model_Positional() for example:
@@ -32,6 +32,7 @@
  ******************************************************************************
  * */
 #include "pid.h"
+float pid_accuracy = PID_DEFAULT_ACCURACY;
 
 /**
  * @brief:  get modulus of a double
