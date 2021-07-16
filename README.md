@@ -2,7 +2,7 @@
 
   ***based on https://blog.csdn.net/qq_18454025/article/details/103443771***
 
-  ***v2.0.0 Beta***
+  ***v2.0.1***
 
   ***Delete serval functions to support advanced pid***
 
