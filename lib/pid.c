@@ -3,7 +3,7 @@
  * @file    : pid.c
  * @brief   : This file provides code for the configuration
  *            of the PID instances.
- * @version : v2.0.0 beta
+ * @version : v2.0.1
  ******************************************************************************
  * @help    When use PID, the following process should be abided
  *          PID_Model_Positional() for example:

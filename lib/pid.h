@@ -3,7 +3,7 @@
  * @file     : pid.h
  * @brief    : This file contains all the function prototypes for
  *             the pid.c file
- * @version  : v2.0.0 Beta
+ * @version  : v2.0.1
  * @author   : sin1111yi
  * @other    : All algorithms reference -- https://blog.csdn.net/qq_18454025/article/details/103443771 --
  ******************************************************************************
