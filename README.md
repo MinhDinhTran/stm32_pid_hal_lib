@@ -27,8 +27,8 @@
 |     PID_Model_Anti_Windup     | float  |           trapezoidal integral pid            |
 | PID_Model_TrapezoidalIntegral | float  |           trapezoidal integral pid            |
 |  PID_Model_VariableIntegral   | float  |             variable integral pid             |
-
-# Author
+---
+## **Author**
 ***how to contact me*** 
 
 ***by email 485210633@qq.com, but not my QQ plz***
