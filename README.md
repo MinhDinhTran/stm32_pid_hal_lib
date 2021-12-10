@@ -1,14 +1,14 @@
-# stm32_pid_hal_lib
+# **stm32_pid_hal_lib**
 
   ***based on https://blog.csdn.net/qq_18454025/article/details/103443771***
 
   ***v2.0.1***
 
-  ***Delete serval functions to support advanced pid***
+  *Delete serval functions to support advanced pid*
 
 # details
 
-***PID lib in peripheral device style, use pid in the way you use peripheral device***
+*PID lib in peripheral device style, use pid in the way you use peripheral device*
 
 |             name              |  type  |                     brief                     |
 | :---------------------------: | :----: | :-------------------------------------------: |
