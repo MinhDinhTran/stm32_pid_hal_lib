@@ -8,7 +8,7 @@
 
 ## **details**
 
-*PID lib in peripheral device style, use pid in the way you use peripheral device*
+*PID lib in peripheral device style, use pid in the way you use peripheral device*   
 *read more details in lib/pid.c*
 
 |             name              |  type  |                     brief                     |
